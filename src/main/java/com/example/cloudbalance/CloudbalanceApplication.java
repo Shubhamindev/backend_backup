@@ -6,12 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 @SpringBootApplication
-@EnableJpaRepositories
 @EntityScan
+@EnableJpaRepositories
 public class CloudbalanceApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(CloudbalanceApplication.class, args);
 	}
-
 }
