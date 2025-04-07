@@ -19,9 +19,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody UserRequestDTO userRequest) {
-        if (authService.userExists(userRequest.getEmail())) {
-            return ResponseEntity.badRequest().body("Email already exists!");
-        }
         return authService.registerUser(userRequest);
     }
 
@@ -42,5 +39,10 @@ public class AuthController {
         }
         String token = authHeader.substring(7);
         return authService.logoutUser(token);
+    }
+
+    @PostMapping("/register-admin")
+    public ResponseEntity<String> registerAdmin(@RequestBody UserRequestDTO userRequest) {
+        return authService.registerAdmin(userRequest);
     }
 }

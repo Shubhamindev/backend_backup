@@ -47,8 +47,16 @@ public class AuthService {
 
     public ResponseEntity<UserResponseDTO> loginUser(UserRequestDTO userRequest) {
         try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(userRequest.getEmail(), userRequest.getPassword()));
+            Authentication authentication;
+            Optional<UsersEntity> userOptional = userRepository.findByEmail(userRequest.getEmail());
+            if (userOptional.isPresent()) {
+                authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(userRequest.getEmail(), userRequest.getPassword()));
+            } else {
+                authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(userRequest.getUsername(), userRequest.getPassword()));
+            }
+
             String token = jwtService.generateToken(userRequest.getEmail());
             String refreshToken = jwtService.generateRefreshToken(userRequest.getEmail());
 
@@ -71,8 +79,8 @@ public class AuthService {
     }
 
     public ResponseEntity<String> registerUser(UserRequestDTO userRequest) {
-        if (userRepository.findByEmail(userRequest.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email already exists!");
+        if (userRepository.findByEmail(userRequest.getEmail()).isPresent() || userRepository.findByUsername(userRequest.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email or Username already exists!");
         }
         RoleEntity userRole = roleRepository.findByName("USER")
                 .orElseThrow(() -> new RuntimeException("Role not found!"));
@@ -103,5 +111,16 @@ public class AuthService {
         String newToken = jwtService.generateToken(username);
         String newRefreshToken = jwtService.generateRefreshToken(username);
         return ResponseEntity.ok(new UserResponseDTO(newToken, newRefreshToken));
+    }
+
+    public ResponseEntity<String> registerAdmin(UserRequestDTO userRequest) {
+        if (userRepository.findByEmail(userRequest.getEmail()).isPresent() || userRepository.findByUsername(userRequest.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email or Username already exists!");
+        }
+        RoleEntity adminRole = roleRepository.findByName("ADMIN")
+                .orElseThrow(() -> new RuntimeException("Role not found!"));
+        UsersEntity newAdmin = createUserEntity(userRequest, adminRole);
+        userRepository.save(newAdmin);
+        return ResponseEntity.ok("Admin registered successfully!");
     }
 }

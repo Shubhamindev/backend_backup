@@ -10,10 +10,11 @@ import org.springframework.stereotype.Component;
 public class DtoToEntityMapper {
 
     public UsersEntity toUserEntity(UserRequestDTO userRequest, RoleEntity userRole, PasswordEncoder passwordEncoder) {
-        return UsersEntity.builder()
-                .email(userRequest.getEmail())
-                .password(passwordEncoder.encode(userRequest.getPassword()))
-                .role(userRole)
-                .build();
+        UsersEntity user = new UsersEntity();
+        user.setEmail(userRequest.getEmail());
+        user.setUsername(userRequest.getUsername());
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        user.setRole(userRole);
+        return user;
     }
 }
