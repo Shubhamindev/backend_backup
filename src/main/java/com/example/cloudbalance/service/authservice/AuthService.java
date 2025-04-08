@@ -1,7 +1,7 @@
 package com.example.cloudbalance.service.authservice;
 
-import com.example.cloudbalance.dto.authdto.UserRequestDTO;
-import com.example.cloudbalance.dto.authdto.UserResponseDTO;
+import com.example.cloudbalance.dto.authdto.AuthUserRequestDTO;
+import com.example.cloudbalance.dto.authdto.AuthUserResponseDTO;
 import com.example.cloudbalance.entity.auth.RoleEntity;
 import com.example.cloudbalance.entity.auth.SessionEntity;
 import com.example.cloudbalance.entity.auth.UsersEntity;
@@ -45,7 +45,7 @@ public class AuthService {
         this.dtoToEntityMapper = dtoToEntityMapper;
     }
 
-    public ResponseEntity<UserResponseDTO> loginUser(UserRequestDTO userRequest) {
+    public ResponseEntity<AuthUserResponseDTO> loginUser(AuthUserRequestDTO userRequest) {
         try {
             Authentication authentication;
             Optional<UsersEntity> userOptional = userRepository.findByEmail(userRequest.getEmail());
@@ -72,13 +72,13 @@ public class AuthService {
                     .build();
             sessionRepository.save(newSession);
 
-            return ResponseEntity.ok(new UserResponseDTO(token, refreshToken));
+            return ResponseEntity.ok(new AuthUserResponseDTO(token, refreshToken));
         } catch (AuthenticationException e) {
             return ResponseEntity.status(401).body(null);
         }
     }
 
-    public ResponseEntity<String> registerUser(UserRequestDTO userRequest) {
+    public ResponseEntity<String> registerUser(AuthUserRequestDTO userRequest) {
         if (userRepository.findByEmail(userRequest.getEmail()).isPresent() || userRepository.findByUsername(userRequest.getUsername()).isPresent()) {
             return ResponseEntity.badRequest().body("Email or Username already exists!");
         }
@@ -98,7 +98,7 @@ public class AuthService {
         return ResponseEntity.ok("Logged out successfully");
     }
 
-    public UsersEntity createUserEntity(UserRequestDTO userRequest, RoleEntity userRole) {
+    public UsersEntity createUserEntity(AuthUserRequestDTO userRequest, RoleEntity userRole) {
         return dtoToEntityMapper.toUserEntity(userRequest, userRole, passwordEncoder);
     }
 
@@ -106,14 +106,14 @@ public class AuthService {
         return userRepository.findByEmail(email).isPresent();
     }
 
-    public ResponseEntity<UserResponseDTO> refreshToken(String refreshToken) {
+    public ResponseEntity<AuthUserResponseDTO> refreshToken(String refreshToken) {
         String username = jwtService.extractUsername(refreshToken);
         String newToken = jwtService.generateToken(username);
         String newRefreshToken = jwtService.generateRefreshToken(username);
-        return ResponseEntity.ok(new UserResponseDTO(newToken, newRefreshToken));
+        return ResponseEntity.ok(new AuthUserResponseDTO(newToken, newRefreshToken));
     }
 
-    public ResponseEntity<String> registerAdmin(UserRequestDTO userRequest) {
+    public ResponseEntity<String> registerAdmin(AuthUserRequestDTO userRequest) {
         if (userRepository.findByEmail(userRequest.getEmail()).isPresent() || userRepository.findByUsername(userRequest.getUsername()).isPresent()) {
             return ResponseEntity.badRequest().body("Email or Username already exists!");
         }
