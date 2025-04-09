@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class UserManagementService {
+public class UserManagementService implements UserManagementServiceInterface {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;

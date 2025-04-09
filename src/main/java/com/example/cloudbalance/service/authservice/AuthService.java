@@ -23,7 +23,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class AuthService {
+public class AuthService implements IAuthService {
 
     private final UserRepository userRepository;
     private final SessionRepository sessionRepository;
@@ -112,6 +112,19 @@ public class AuthService {
         String newRefreshToken = jwtService.generateRefreshToken(username);
         return ResponseEntity.ok(new AuthUserResponseDTO(newToken, newRefreshToken));
     }
+
+    public ResponseEntity<String > updatePassword(AuthUserRequestDTO userRequest){
+        UsersEntity user = userRepository.findByEmail(userRequest.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (userRequest.getPassword() != null && !userRequest.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+            userRepository.save(user);
+            return ResponseEntity.ok("Password updated successfully!");
+        } else {
+            return ResponseEntity.badRequest().body("Invalid password!");
+        }
+    }
+
 
     public ResponseEntity<String> registerAdmin(AuthUserRequestDTO userRequest) {
         if (userRepository.findByEmail(userRequest.getEmail()).isPresent() || userRepository.findByUsername(userRequest.getUsername()).isPresent()) {

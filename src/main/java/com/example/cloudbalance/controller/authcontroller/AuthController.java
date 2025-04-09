@@ -3,6 +3,7 @@ package com.example.cloudbalance.controller.authcontroller;
 import com.example.cloudbalance.dto.authdto.AuthUserRequestDTO;
 import com.example.cloudbalance.dto.authdto.AuthUserResponseDTO;
 import com.example.cloudbalance.service.authservice.AuthService;
+import com.example.cloudbalance.service.authservice.IAuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,9 +12,9 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
-    private final AuthService authService;
+    private final IAuthService authService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(IAuthService authService) {
         this.authService = authService;
     }
 
